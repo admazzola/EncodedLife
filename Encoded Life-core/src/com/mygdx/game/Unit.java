@@ -10,17 +10,22 @@ public class Unit {
 	List<Chromosome> DNA = new ArrayList<Chromosome>();  //all based around energy!
 	
 	UnitModel model;
-	
+	UnitAIController AIController;
 	
 	public Unit()
 	{
 		model = new UnitModel();
 		
-		
+		AIController = new UnitAIController();
 		
 	}
 	
-	
+	public void update(float tpf)
+	{
+		AIController.update(tpf);
+		
+		
+	}
 
 	public Actor getModel() {
 		return model;

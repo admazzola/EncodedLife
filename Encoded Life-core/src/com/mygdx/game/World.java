@@ -1,5 +1,8 @@
 package com.mygdx.game;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.maps.MapLayers;
@@ -22,6 +25,8 @@ public class World extends Stage{
 	}
 	
 	
+	List<Unit> units = new ArrayList<Unit>();
+	
 	
 	private void init() {
 		
@@ -32,8 +37,9 @@ public class World extends Stage{
 		tiledMapRenderer = new OrthogonalTiledMapRenderer(terrain.getMap());
 		
 		
+		
 		Unit unit = new Unit();
-
+		units.add(unit);
         addActor(unit.getModel());
         
       
@@ -42,9 +48,12 @@ public class World extends Stage{
 
 
 
-	public void update() {
-	
+	public void update(float tpf) {
 		
+		for(Unit unit: units)
+		{
+		unit.update(tpf);
+		}
 	}
 	
 	

@@ -16,10 +16,13 @@ public class UnitModel extends Actor{
 		
 	}
 	
+	
+	//should use sprite atlas packer for this
+	
 	 Texture texture = new Texture(Gdx.files.internal("terrain/terrain.png"));
      @Override
      public void draw(Batch batch, float alpha){
-         batch.draw(texture,this.getX(),this.getY());
+        // batch.draw(texture,this.getX(),this.getY());
      }
 	
 }

@@ -23,7 +23,10 @@ public class EncodedLife extends ApplicationAdapter {
 
 	//http://www.gamefromscratch.com/post/2013/11/27/LibGDX-Tutorial-9-Scene2D-Part-1.aspx
 	
-	private World world;
+	static World world;
+	
+
+
 	Viewport viewport ;
 	static Camera camera;
 
@@ -61,7 +64,7 @@ public class EncodedLife extends ApplicationAdapter {
 	@Override
 	public void render () {
 		
-		update();
+		update(Gdx.graphics.getDeltaTime());
 		
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -74,13 +77,15 @@ public class EncodedLife extends ApplicationAdapter {
 	}
 	
 	
-	private void update() {
+	private void update(float tpf) {
 		camera.translate(-3, 0, 0);		
+		
+		
+		
+		
+		world.update(tpf);
+		
 		camera.update();
-		
-		
-		
-		world.update();
 	}
 
 
@@ -93,4 +98,16 @@ public class EncodedLife extends ApplicationAdapter {
 	        
 	        System.out.println("Resizing");
 	    }
+	  
+	  public static World getWorld() {
+			return world;
+		}
+
+
+
+		public static Camera getCamera() {
+			return camera;
+		}
+
+
 }
