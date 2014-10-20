@@ -1,4 +1,4 @@
-package com.mygdx.game.Chromosomes;
+package com.mygdx.game.chromosomes;
 
 public class WeaponSize extends Chromosome{
 	
