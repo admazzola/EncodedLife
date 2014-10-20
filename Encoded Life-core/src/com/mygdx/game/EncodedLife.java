@@ -25,7 +25,7 @@ public class EncodedLife extends ApplicationAdapter {
 	
 	private World world;
 	Viewport viewport ;
-	private Camera camera;
+	static Camera camera;
 
 	
 	@Override
@@ -55,12 +55,15 @@ public class EncodedLife extends ApplicationAdapter {
 		 world.dispose();
 	}
 	 
+	 
+	 
+	 
 	@Override
 	public void render () {
 		
 		update();
 		
-		Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		world.draw();
         		

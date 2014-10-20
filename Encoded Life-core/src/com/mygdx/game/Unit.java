@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.mygdx.game.chromosomes.Chromosome;
 
 public class Unit {
-	List<Chromosome> DNA = new ArrayList<Chromosome>();
+	List<Chromosome> DNA = new ArrayList<Chromosome>();  //all based around energy!
 	
 	UnitModel model;
 	
