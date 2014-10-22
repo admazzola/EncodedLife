@@ -1,16 +1,22 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.tools.texturepacker.TexturePacker;
+import com.badlogic.gdx.tools.texturepacker.TexturePacker.Settings;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.input.GestureDetector.GestureListener;
+import com.badlogic.gdx.math.Vector2;
 
-public class EncodedLife extends ApplicationAdapter {
+public class EncodedLife extends ApplicationAdapter  implements ApplicationListener, GestureListener {
 	SpriteBatch batch;
 	Texture img;
 	
@@ -24,28 +30,43 @@ public class EncodedLife extends ApplicationAdapter {
 	//http://www.gamefromscratch.com/post/2013/11/27/LibGDX-Tutorial-9-Scene2D-Part-1.aspx
 	
 	static World world;
-	
-
-
 	Viewport viewport ;
 	static Camera camera;
 
-	
+	static boolean REPACK_TEXTURES = true;
+		
 	@Override
 	public void create () {
 		
+		 
 		
 		
+		if(REPACK_TEXTURES){
+		//pack textures
+		Settings settings = new Settings();
+        settings.maxWidth = 512;
+        settings.maxHeight = 512;
+        // TexturePacker.process(inputDir, outputDir, packFileName);
+        TexturePacker.process(settings, "../assets/images", Terrain.TERRAIN_ATLAS_PATH, Terrain.TERRAIN_ATLAS_NAME);
+		}
+		
+		
+		//set up viewport
 		viewport = new ScreenViewport();
-		camera = viewport.getCamera();
-		
+		camera = viewport.getCamera();		
 			
 		viewport.setScreenPosition(0, 0);
 		viewport.setScreenSize(800, 480);
 		viewport.apply();
-
+		
+		
+		
+		//create the world
 		world = new World(viewport);
 		
+		//listen for inputs
+		GestureDetector gd = new GestureDetector(this);
+        Gdx.input.setInputProcessor(gd);
 		
 		//batch = new SpriteBatch();
 		//img = new Texture("badlogic.jpg");
@@ -78,7 +99,7 @@ public class EncodedLife extends ApplicationAdapter {
 	
 	
 	private void update(float tpf) {
-		camera.translate(-3, 0, 0);		
+		
 		
 		
 		
@@ -107,6 +128,71 @@ public class EncodedLife extends ApplicationAdapter {
 
 		public static Camera getCamera() {
 			return camera;
+		}
+
+
+
+		@Override
+		public boolean touchDown(float x, float y, int pointer, int button) {
+			System.out.println("Touch down at " +x +" , "+y);
+			return false;
+		}
+
+
+
+		@Override
+		public boolean tap(float x, float y, int count, int button) {
+			System.out.println("Tap at " +x +" , "+y);
+			return false;
+		}
+
+
+
+		@Override
+		public boolean longPress(float x, float y) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+
+
+		@Override
+		public boolean fling(float velocityX, float velocityY, int button) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+
+
+		@Override
+		public boolean pan(float x, float y, float deltaX, float deltaY) {
+			camera.translate(-deltaX, deltaY, 0);
+			return false;
+		}
+
+
+
+		@Override
+		public boolean panStop(float x, float y, int pointer, int button) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+
+
+		@Override
+		public boolean zoom(float initialDistance, float distance) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+
+
+		@Override
+		public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2,
+				Vector2 pointer1, Vector2 pointer2) {
+			// TODO Auto-generated method stub
+			return false;
 		}
 
 
