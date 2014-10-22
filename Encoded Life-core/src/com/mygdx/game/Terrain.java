@@ -9,6 +9,8 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.mygdx.game.utilities.PerlinNoiseGenerator;
+import com.mygdx.game.utilities.SIDES;
+import com.mygdx.game.utilities.Vector2f;
 
 public class Terrain {
 
@@ -84,23 +86,76 @@ public class Terrain {
 	
 	private AtlasRegion getTerrainTileRegion(TextureAtlas atlas, int x, int y, int z) throws Exception{
 		
-		int terrainTypeId = getTerrainTypeAtLoc(x,y,z);
+		TerrainTileData tiledata = getTerrainDataAtLoc(x,y,z);
 		
-		AtlasRegion parentRegion = atlas.findRegion(TERRAIN_TYPES.values()[ terrainTypeId ].getPath() );
 		
-		int x_offset = 0;
-		int y_offset = 0;		
+		AtlasRegion parentRegion = atlas.findRegion( tiledata.terrainType.getPath() );
 		
-		return new AtlasRegion(parentRegion.getTexture(), parentRegion.getRegionX() + x_offset, parentRegion.getRegionY() + y_offset, 32, 32);
+		
+		
+		Vector2f subtileOffset = tiledata.subtileType.getOffset().mult(32);
+		
+		return new AtlasRegion(parentRegion.getTexture(), parentRegion.getRegionX() + (int)subtileOffset.getX(), parentRegion.getRegionY() + (int) subtileOffset.getY(), 32, 32);
 	}
 
 
 
-	private short getTerrainTypeAtLoc(int x, int y,int z) {
-		return tiles[z][y][x];
+	private TerrainTileData getTerrainDataAtLoc(int x, int y,int z) {
+			
+		
+		boolean adjacentTilesSimilar[] = getAdjacentTilesSimilar(x,y,z);
+				
+		
+		return new TerrainTileData(tiles[z][y][x], SUBTILE_TYPE.getFromAdjacentTileMap( adjacentTilesSimilar ));
 	}
 
+	private boolean[] getAdjacentTilesSimilar(int x, int y, int z) {
+		
+		boolean[] tilesSimilar = new boolean[8];
+		
+		for(int i=0;i<8;i++)
+		{
+			if(withinMapBounds(x,y,z)){
+			tilesSimilar[i] = tiles[z][y][x] == tiles[z][y+SIDES.values()[i].getY()][x+SIDES.values()[i].getX()]; 	
+			}
+		}		
+		
+		return tilesSimilar;
+	}
 
+	private boolean withinMapBounds(int x, int y, int z) {
+		
+		return x > 0 && x < Statics.MAP_SIZE && y > 0 && y < Statics.MAP_SIZE;
+	}
+
+	class TerrainTileData
+	{
+		TERRAIN_TYPES terrainType;
+		SUBTILE_TYPE subtileType;	
+		
+		
+		public TerrainTileData(int TerrainTypeId, int subtileTypeId) 
+		{
+			this.terrainType =  TERRAIN_TYPES.values()[TerrainTypeId];
+			this.subtileType =  SUBTILE_TYPE.values()[subtileTypeId];
+		}
+		
+		
+		public TerrainTileData(TERRAIN_TYPES terrainType, SUBTILE_TYPE subtileType) 
+		{
+			this.terrainType=terrainType;
+			this.subtileType=subtileType;
+		}
+		
+		public TerrainTileData(int TerrainTypeId, SUBTILE_TYPE subtileType) 
+		{
+			this.terrainType =  TERRAIN_TYPES.values()[TerrainTypeId];
+			this.subtileType=subtileType;
+		}
+		
+		
+			
+	}
 
 
 
@@ -112,8 +167,7 @@ public class Terrain {
 		
 		for(int x=0;x<Statics.MAP_SIZE;x++){
 			for(int y=0;y<Statics.MAP_SIZE;y++){
-				
-				
+							
 				
 				tiles[0][y][x] = TERRAIN_TYPES.GRASS2.getID(); //the type of terrain (grass etc)
 				
@@ -128,6 +182,50 @@ public class Terrain {
 
 	public TiledMap getMap() {
 		return map;
+	}
+	
+	
+	enum SUBTILE_TYPE
+	{
+		BASE(1,3),
+		BASE1(0,5),
+		BASE2(1,5),
+		BASE3(2,5),
+		TOP(1,2),
+		TOPRIGHT(2,2),
+		RIGHT(2,3),
+		BOTTOMRIGHT(2,4),
+		BOTTOM(1,4),
+		BOTTOMLEFT(0,4),
+		LEFT(0,3),
+		TOPLEFT(0,2),
+		CORNERTOPRIGHT(2,0),
+		CORNERTOPLEFT(1,0),
+		CORNERBOTTOMLEFT(1,1),
+		CORNERBOTTOMRIGHT(2,1),
+		PATCH1(0,0),
+		PATCH2(0,1)
+		;
+		
+		int x;
+		int y;
+		SUBTILE_TYPE(int x, int y)
+		{
+			this.x=x;
+			this.y=y;			
+		}
+		public static SUBTILE_TYPE getFromAdjacentTileMap(boolean[] map) {
+			
+			//add logic here
+			
+			
+			
+			return BASE;
+		}
+		public Vector2f getOffset() {			
+			return new Vector2f(x,y);
+		}
+		
 	}
 	
 	
