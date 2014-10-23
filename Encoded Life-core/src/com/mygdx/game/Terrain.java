@@ -214,13 +214,41 @@ public class Terrain {
 			this.x=x;
 			this.y=y;			
 		}
-		public static SUBTILE_TYPE getFromAdjacentTileMap(boolean[] map) {
+		public static SUBTILE_TYPE getFromAdjacentTileMap(boolean[] same) {
+			
+			SUBTILE_TYPE type = SUBTILE_TYPE.PATCH1;
 			
 			//add logic here
+			if(same[SIDES.TOP.ordinal()]&&same[SIDES.RIGHT.ordinal()]&&same[SIDES.BOTTOM.ordinal()]&&same[SIDES.LEFT.ordinal()]){
+				
+				type = SUBTILE_TYPE.BASE;
+			
+					//corners
+					if(!same[SIDES.TOPRIGHT.ordinal()]){type = SUBTILE_TYPE.BOTTOMLEFT;}
+					if(!same[SIDES.BOTTOMRIGHT.ordinal()]){type = SUBTILE_TYPE.TOPLEFT;}
+					if(!same[SIDES.BOTTOMLEFT.ordinal()]){type = SUBTILE_TYPE.TOPRIGHT;}
+					if(!same[SIDES.TOPLEFT.ordinal()]){type = SUBTILE_TYPE.BOTTOMRIGHT;}
+					
+			}
+			
+			//cardinals
+			if(same[SIDES.TOP.ordinal()]&&same[SIDES.RIGHT.ordinal()]&&same[SIDES.BOTTOM.ordinal()]&&!same[SIDES.LEFT.ordinal()]){type = SUBTILE_TYPE.RIGHT;}
+			if(same[SIDES.TOP.ordinal()]&&same[SIDES.BOTTOM.ordinal()]&&same[SIDES.LEFT.ordinal()]&&!same[SIDES.RIGHT.ordinal()]){type = SUBTILE_TYPE.LEFT;}
+			if(same[SIDES.RIGHT.ordinal()]&&same[SIDES.BOTTOM.ordinal()]&&same[SIDES.LEFT.ordinal()]&&!same[SIDES.TOP.ordinal()]){type = SUBTILE_TYPE.BOTTOM;}
+			if(same[SIDES.RIGHT.ordinal()]&&same[SIDES.TOP.ordinal()]&&same[SIDES.LEFT.ordinal()]&&!same[SIDES.BOTTOM.ordinal()]){type = SUBTILE_TYPE.TOP;}
+			
+
+			//diags
+			if(same[2]&&same[4]&&!same[0]&&!same[6]&&same[3]){type = SUBTILE_TYPE.CORNERBOTTOMLEFT;}
+			if(same[4]&&same[6]&&!same[2]&&!same[0]&&same[5]){type = SUBTILE_TYPE.CORNERBOTTOMLEFT;}
+			if(same[0]&&same[2]&&!same[6]&&!same[4]&&same[1]){type = SUBTILE_TYPE.CORNERBOTTOMLEFT;}
+			if(same[0]&&same[6]&&!same[2]&&!same[4]&&same[7]){type = SUBTILE_TYPE.CORNERBOTTOMLEFT;}
+			
+					
 			
 			
 			
-			return BASE;
+			return type;
 		}
 		public Vector2f getOffset() {			
 			return new Vector2f(x,y);
