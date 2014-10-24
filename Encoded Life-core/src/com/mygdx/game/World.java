@@ -63,10 +63,11 @@ public class World extends Stage{
 	@Override
 	public void draw()
 	{
+		
+		 
 		//draw the terrain
 		tiledMapRenderer.setView((OrthographicCamera) EncodedLife.camera);
         tiledMapRenderer.render();
-		
 		//draw the actors
 		super.draw();
 	}

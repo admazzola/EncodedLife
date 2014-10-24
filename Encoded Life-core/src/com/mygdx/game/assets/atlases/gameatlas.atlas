@@ -1,0 +1,124 @@
+
+gameatlas.png
+size: 512,512
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+darkgrass
+  rotate: false
+  xy: 2, 196
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+dirt1
+  rotate: false
+  xy: 2, 2
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+dirt2
+  rotate: false
+  xy: 100, 196
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+dirt3
+  rotate: false
+  xy: 100, 2
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+dirtpit
+  rotate: false
+  xy: 198, 196
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+grass1
+  rotate: false
+  xy: 198, 2
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+grass2
+  rotate: false
+  xy: 296, 196
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+island
+  rotate: false
+  xy: 296, 2
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+lava
+  rotate: false
+  xy: 394, 196
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+obsidian
+  rotate: false
+  xy: 394, 2
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+
+gameatlas2.png
+size: 512,512
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+pond
+  rotate: false
+  xy: 2, 196
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+sand
+  rotate: false
+  xy: 2, 2
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+sandpit
+  rotate: false
+  xy: 100, 196
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+shortgrass
+  rotate: false
+  xy: 100, 2
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+tallgrass
+  rotate: false
+  xy: 198, 196
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1
+wheat
+  rotate: false
+  xy: 198, 2
+  size: 96, 192
+  orig: 96, 192
+  offset: 0, 0
+  index: -1

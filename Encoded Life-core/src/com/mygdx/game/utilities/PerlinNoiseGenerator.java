@@ -45,7 +45,7 @@ public class PerlinNoiseGenerator {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				noise[x][y] = rand.nextFloat();
-				System.out.println("RAND " + noise[x][y] );
+				
 			}
 		}
 		return noise;

@@ -13,8 +13,10 @@ import com.mygdx.game.utilities.SIDES;
 import com.mygdx.game.utilities.Vector2f;
 
 public class Terrain {
+	
+	
 
-	public static String TERRAIN_ATLAS_PATH = "../assets/atlases";
+	public static String TERRAIN_ATLAS_PATH = "com/mygdx/game/assets/atlases";
 	public static String TERRAIN_ATLAS_NAME = "gameatlas";
 	
 	TiledMap map;
@@ -22,11 +24,14 @@ public class Terrain {
 	
 	
 	short biomemap[][] = new short[Statics.MAP_SIZE][Statics.MAP_SIZE];
-	short tiles[][][] = new short[2][Statics.MAP_SIZE][Statics.MAP_SIZE];
-	TiledMapTileLayer[] tilelayers = new TiledMapTileLayer[2];
+	short tiles[][][] = new short[3][Statics.MAP_SIZE][Statics.MAP_SIZE];
+	TiledMapTileLayer[] tilelayers = new TiledMapTileLayer[3];
 	
 	static int BASE_LAYER = 0;
 	static int TOP_LAYER = 1;
+	static int AUX_CORNER_LAYER= 2;
+	
+	int TILE_SIZE = 32;
 	
 	public Terrain() {
 		
@@ -45,8 +50,9 @@ public class Terrain {
 		layers = map.getLayers();
 		
 		
-		tilelayers[BASE_LAYER] = new TiledMapTileLayer(Statics.MAP_SIZE, Statics.MAP_SIZE, 32, 32);
-		tilelayers[TOP_LAYER] = new TiledMapTileLayer(Statics.MAP_SIZE, Statics.MAP_SIZE, 32, 32);
+		tilelayers[BASE_LAYER] = new TiledMapTileLayer(Statics.MAP_SIZE, Statics.MAP_SIZE, TILE_SIZE, TILE_SIZE);
+		tilelayers[TOP_LAYER] = new TiledMapTileLayer(Statics.MAP_SIZE, Statics.MAP_SIZE, TILE_SIZE, TILE_SIZE);
+		tilelayers[AUX_CORNER_LAYER] = new TiledMapTileLayer(Statics.MAP_SIZE, Statics.MAP_SIZE, TILE_SIZE, TILE_SIZE); //fixes glitches
 				
 		//should use texture packer for this to look up coords
 		//Texture terrainmap = new Texture(Gdx.files.internal("terrain/terrain.png"));
@@ -55,7 +61,7 @@ public class Terrain {
 		
 		AtlasRegion region;
 		
-		for(int z = 0;z<tilelayers.length;z++){
+		for(int z = BASE_LAYER;z<=AUX_CORNER_LAYER;z++){
 		for(int x=0;x<Statics.MAP_SIZE;x++){
 			for(int y=0;y<Statics.MAP_SIZE;y++){
 						
@@ -65,16 +71,12 @@ public class Terrain {
 					
 						 region = getTerrainTileRegion(atlas,x,y,z); 	
 						
-						
 						if(region!=null)
 						{
 						cell.setTile(new StaticTiledMapTile(region));
 						tilelayers[z].setCell(x, y, cell);	
 						}
 						
-					
-					
-					
 			}
 		}
 		
@@ -97,9 +99,8 @@ public class Terrain {
 		
 		AtlasRegion parentRegion = atlas.findRegion( tiledata.terrainType.getPath() );
 		
-		if(tiledata.subtileType == SUBTILE_TYPE.NONE)
-		{
-		
+		if(tiledata.subtileType == SUBTILE_TYPE.NONE || tiledata.terrainType == TERRAIN_TYPES.NONE)
+		{					
 			return null;
 		}
 		
@@ -113,12 +114,35 @@ public class Terrain {
 	private TerrainTileData getTerrainDataAtLoc(int x, int y,int z) {
 			
 		
-		boolean adjacentTilesSimilar[] = getAdjacentTilesSimilar(x,y,z);
+		boolean[] adjacentTilesSimilar = getAdjacentTilesSimilar(x,y,z);
+		
+		SUBTILE_TYPE type  = SUBTILE_TYPE.getFromAdjacentTileMap(x,y, adjacentTilesSimilar );
+		
+		
+				
+		if(z == AUX_CORNER_LAYER)
+		{
+			adjacentTilesSimilar = getAdjacentTilesSimilar(x,y,TOP_LAYER);
+			type = SUBTILE_TYPE.NONE;
+			SUBTILE_TYPE top_subtile = getTerrainDataAtLoc(x,y,TOP_LAYER).subtileType;
+			if(top_subtile == SUBTILE_TYPE.TOPLEFT || 
+					top_subtile == SUBTILE_TYPE.BOTTOMLEFT ||
+					top_subtile == SUBTILE_TYPE.TOPRIGHT || 
+					top_subtile == SUBTILE_TYPE.BOTTOMRIGHT){
+				
+				type = SUBTILE_TYPE.getAuxTile(adjacentTilesSimilar);
+			}
+			
+			
+			
+			
+			return new TerrainTileData(tiles[TOP_LAYER][y][x],type);
+		}
+		
+		
 
 		
-		
-		
-		return new TerrainTileData(tiles[z][y][x], SUBTILE_TYPE.getFromAdjacentTileMap( adjacentTilesSimilar ));
+		return new TerrainTileData(tiles[z][y][x],type);
 	}
 
 	private boolean[] getAdjacentTilesSimilar(int x, int y, int z) {
@@ -170,45 +194,59 @@ public class Terrain {
 	}
 
 
-	PerlinNoiseGenerator biomenoise = new PerlinNoiseGenerator();
-	PerlinNoiseGenerator tilenoise = new PerlinNoiseGenerator();
+	static PerlinNoiseGenerator biomenoise = new PerlinNoiseGenerator((long) (Math.random()*10000));
+	static PerlinNoiseGenerator tilenoise = new PerlinNoiseGenerator((long) (Math.random()*10000));
+	static PerlinNoiseGenerator patchvarietynoise = new PerlinNoiseGenerator((long) (Math.random()*10000));
 	
 	private void generateTiles() {
 				
 		//biomemap
 		
+		patchvarietynoise.generatePerlinNoise(Statics.MAP_SIZE, Statics.MAP_SIZE, 3,25,0.2f);
+		
 		biomenoise.generatePerlinNoise(Statics.MAP_SIZE, Statics.MAP_SIZE, 7,25,0.05f);
 		
-		tilenoise.generatePerlinNoise(Statics.MAP_SIZE, Statics.MAP_SIZE, 4,25,0.05f);
+		tilenoise.generatePerlinNoise(Statics.MAP_SIZE, Statics.MAP_SIZE, 5,25,0.05f);
 				
 		for(int x=0;x<Statics.MAP_SIZE;x++){
 			for(int y=0;y<Statics.MAP_SIZE;y++){
 							
 				
-				tiles[0][y][x] = TERRAIN_TYPES.GRASS2.getID(); //the type of terrain (grass etc)
-								
+				tiles[0][y][x] =  getBiomeTypeAtLocation(x,y).getBaseTerrainType().getID(); //the type of terrain (grass etc)
 				
-				tiles[1][y][x] = getTileTypeAtLocation(x,y);  
+				tiles[1][y][x] = getTileTypeAtLocation(x,y).getID();  
+				
 				
 				
 			}
 		}
 		
 		
+		
+		
+		
+		
+		
 	}
 
-	private short getTileTypeAtLocation(int x, int y) {
+	private TERRAIN_TYPES getTileTypeAtLocation(int x, int y) {
 
 		BIOME_TYPES biomeType = getBiomeTypeAtLocation(x,y); 
 		
 		float tileValue = Math.abs(tilenoise.getValue(x, y));
-
+				
 		TERRAIN_TYPES type = biomeType.getTerrainTypeFromNoiseValue(tileValue);
 		
+		if(type == TERRAIN_TYPES.NONE)
+		{
+			if(patchvarietynoise.getValue(x, y) < 0.3f)
+			{
+				type = biomeType.getBaseTerrainType();
+			}			
+		}
 		
 		
-		
-		return  (short) type.ordinal();
+		return  type;
 	}
 
 
@@ -273,6 +311,17 @@ public class Terrain {
 		}
 		
 		
+
+		
+		private static SUBTILE_TYPE[] getAuxValues() {
+			
+			//checks in opposite order
+			return new SUBTILE_TYPE[]{TOPLEFT,BOTTOMLEFT,BOTTOMRIGHT,TOPRIGHT};
+		}
+
+
+		
+		
 		
 		public boolean[] RequiredNeighbors() {
 			boolean[] valids = new boolean[]{true,true,true,true,true,true,true,true};
@@ -324,18 +373,11 @@ public class Terrain {
 		
 		
 		
-		public static SUBTILE_TYPE getFromAdjacentTileMap(boolean[] sames ) {
+		public static SUBTILE_TYPE getFromAdjacentTileMap(int x, int y,boolean[] sames ) {
 			
 			SUBTILE_TYPE type = checkGroupSubtileTypes(sames);
 			
-			if(type == SUBTILE_TYPE.NONE)
-			{
-				if(Math.random() < 0.2)
-				{
-					type = SUBTILE_TYPE.PATCH1;
-				}
-				
-			}
+			
 			
 			return type;
 			
@@ -365,8 +407,7 @@ public class Terrain {
 				//if all the side requirements were met, this is the right tiletype. requirements continue to get easier with each successive tiletype.
 				return type;
 				
-			}
-	
+			}	
 			
 			return SUBTILE_TYPE.NONE;
 			
@@ -375,7 +416,37 @@ public class Terrain {
 		
 		
 		
+		public static SUBTILE_TYPE getAuxTile(boolean[] sames ) {
+			
+
+			tiletypeloop:
+				for(SUBTILE_TYPE type : SUBTILE_TYPE.getAuxValues()) //draw the corners in the opposite order, on top
+				{
+					for(int side =0; side < sames.length; side++)
+						{
+							if(type.RequiredNeighbors()[side])
+							{
+								//if this side is required, it must actually exist. otherwise, move to the next tile type
+								if(sames[side] == false)
+								{
+									continue tiletypeloop; 
+								}
+								
+							}				
+						}
+					//if all the side requirements were met, this is the right tiletype. requirements continue to get easier with each successive tiletype.
+					return type;
+					
+				}	
+				
+				return SUBTILE_TYPE.NONE;
+				
+		}
 		
+		
+		
+		
+
 		public Vector2f getOffset() {			
 			return new Vector2f(x,y);
 		}
@@ -386,13 +457,13 @@ public class Terrain {
 
 	enum BIOME_TYPES
 	{
-		PLAINS(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.GRASS1, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.30f) ,new BiomeTileRoll(TERRAIN_TYPES.GRASS2, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.WHEAT, 0.10f)   }),
-		GRASS(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.GRASS1, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.30f) ,new BiomeTileRoll(TERRAIN_TYPES.TALLGRASS, 0.30f)   }),
-		DUNES(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.SAND, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.DIRT1, 0.30f) ,new BiomeTileRoll(TERRAIN_TYPES.TALLGRASS, 0.30f)   }),
-		BEACH(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.GRASS1, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.30f) ,new BiomeTileRoll(TERRAIN_TYPES.TALLGRASS, 0.30f)   }),
-		FOREST(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.GRASS2, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.30f) ,new BiomeTileRoll(TERRAIN_TYPES.DARKGRASS, 0.30f)   }),
-		JUNGLE(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.GRASS1, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.30f) ,new BiomeTileRoll(TERRAIN_TYPES.TALLGRASS, 0.30f)   }),
-		SWAMP(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.DARKGRASS, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.POND, 0.30f) ,new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.30f)   })
+		PLAINS(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.GRASS1, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.10f) ,new BiomeTileRoll(TERRAIN_TYPES.GRASS2, 0.20f),new BiomeTileRoll(TERRAIN_TYPES.WHEAT, 0.10f)   }),
+		GRASS(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.GRASS1, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.10f) ,new BiomeTileRoll(TERRAIN_TYPES.TALLGRASS, 0.10f)   }),
+		DUNES(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.SAND, 0.40f),new BiomeTileRoll(TERRAIN_TYPES.DIRT1, 0.20f) ,new BiomeTileRoll(TERRAIN_TYPES.SANDPIT, 0.10f)   }),
+		BEACH(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.GRASS1, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.10f) ,new BiomeTileRoll(TERRAIN_TYPES.TALLGRASS, 0.10f)   }),
+		FOREST(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.GRASS2, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.10f) ,new BiomeTileRoll(TERRAIN_TYPES.DARKGRASS, 0.10f)   }),
+		JUNGLE(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.GRASS1, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.10f) ,new BiomeTileRoll(TERRAIN_TYPES.TALLGRASS, 0.20f)   }),
+		SWAMP(new BiomeTileRoll[]{new BiomeTileRoll(TERRAIN_TYPES.DARKGRASS, 0.30f),new BiomeTileRoll(TERRAIN_TYPES.POND, 0.20f) ,new BiomeTileRoll(TERRAIN_TYPES.SHORTGRASS, 0.20f)   })
 		;
 		
 		float runningOffset;
@@ -411,18 +482,27 @@ public class Terrain {
 			
 		}
 		
+		
+		public TERRAIN_TYPES getBaseTerrainType(){			
+			return rolls[0].type;
+		}
+		
+		
 		public TERRAIN_TYPES getTerrainTypeFromNoiseValue(float val)
 		{
 			for(BiomeTileRoll roll : rolls )
 			{
 				if(val > roll.offset && val < roll.offset+roll.chance  )
 				{
+					
+					
+					
 					return roll.type;
 				}
 			}
 			
 			
-			return rolls[0].type;
+			return TERRAIN_TYPES.NONE;
 			
 		}
 		
@@ -458,6 +538,8 @@ public class Terrain {
 		SAND("sand"),
 		SANDPIT("sandpit"),
 		WHEAT("wheat"),
+		NONE(""),
+		PATCHES(""),
 		;
 		
 		String path = "NA";

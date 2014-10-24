@@ -33,7 +33,7 @@ public class EncodedLife extends ApplicationAdapter  implements ApplicationListe
 	Viewport viewport ;
 	static Camera camera;
 
-	static boolean REPACK_TEXTURES = true;
+	static boolean REPACK_TEXTURES = false;
 		
 	@Override
 	public void create () {
@@ -47,7 +47,7 @@ public class EncodedLife extends ApplicationAdapter  implements ApplicationListe
         settings.maxWidth = 512;
         settings.maxHeight = 512;
         // TexturePacker.process(inputDir, outputDir, packFileName);
-        TexturePacker.process(settings, "../assets/images", Terrain.TERRAIN_ATLAS_PATH, Terrain.TERRAIN_ATLAS_NAME);
+        TexturePacker.process(settings, "com/mygdx/game/assets/images", Terrain.TERRAIN_ATLAS_PATH, Terrain.TERRAIN_ATLAS_NAME);
 		}
 		
 		
@@ -87,7 +87,7 @@ public class EncodedLife extends ApplicationAdapter  implements ApplicationListe
 		
 		update(Gdx.graphics.getDeltaTime());
 		
-		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClearColor(47/255f, 129/255f, 54/255f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		world.draw();
         		
@@ -108,12 +108,15 @@ public class EncodedLife extends ApplicationAdapter  implements ApplicationListe
 	}
 
 
-	
+	float zoom = 4f;
 
 	  @Override
 	    public void resize(int width, int height) {
 	        float aspectRatio = (float) width / (float) height;
 	        viewport.setScreenSize(width, height);
+	        viewport.setWorldSize(width*zoom, height*zoom);
+	        viewport.apply();
+	        
 	        
 	        System.out.println("Resizing");
 	    }
