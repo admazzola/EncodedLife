@@ -102,8 +102,6 @@ public class EncodedLife extends ApplicationAdapter  implements ApplicationListe
 		
 		
 		
-		
-		
 		world.update(tpf);
 		
 		camera.update();

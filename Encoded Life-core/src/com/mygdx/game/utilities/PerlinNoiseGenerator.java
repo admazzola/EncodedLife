@@ -80,11 +80,11 @@ public class PerlinNoiseGenerator {
 		return smoothNoise;
 	}
 
-	public  float[][] generatePerlinNoise (float[][] baseNoise, int octaveCount,float amplitude) {
+	public  float[][] generatePerlinNoise (float[][] baseNoise, int octaveCount,float amplitude,float persistance) {
 		int width = baseNoise.length;
 		int height = baseNoise[0].length;
 		float[][][] smoothNoise = new float[octaveCount][][]; // an array of 2D arrays containing
-		float persistance = 0.7f;
+		
 
 		for (int i = 0; i < octaveCount; i++) {
 			smoothNoise[i] = generateSmoothNoise(baseNoise, i);
@@ -115,14 +115,14 @@ public class PerlinNoiseGenerator {
 		return values;
 	}
 
-	public  float[][] generatePerlinNoise (int width, int height, int octaveCount, int amplitude) {
+	public  float[][] generatePerlinNoise (int width, int height, int octaveCount, int amplitude, float persistance) {
 		float[][] baseNoise = generateWhiteNoise(width, height);
-		return generatePerlinNoise(baseNoise, octaveCount, amplitude);
+		return generatePerlinNoise(baseNoise, octaveCount, amplitude,persistance);
 	}
 
-	public  byte[] generateHeightMap (int width, int height, int min, int max, int octaveCount) {
+	public  byte[] generateHeightMap (int width, int height, int min, int max, int octaveCount ) {
 		float[][] baseNoise = generateWhiteNoise(width, height);
-		float[][] noise = generatePerlinNoise(baseNoise, octaveCount, 1.0f);
+		float[][] noise = generatePerlinNoise(baseNoise, octaveCount, 1.0f,1.0f);
 		byte[] bytes = new byte[baseNoise.length * baseNoise[0].length];
 		int idx = 0;
 		int range = max - min;
